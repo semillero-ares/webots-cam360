@@ -26,7 +26,7 @@ cam360/
 | [Webots R2025a](https://cyberbotics.com/) | o una versión posterior compatible |
 | Python 3.8+ | el que use Webots para los controladores en Python |
 | [ffmpeg](https://ffmpeg.org/download.html) | debe estar en el `PATH`. En Windows: `winget install Gyan.FFmpeg` |
-| GPU NVIDIA con NVENC | recomendado; sin ella se puede codificar por CPU (ver [Configuración](#configuración)) |
+| GPU NVIDIA con NVENC | recomendado; sin ella se codifica por CPU automáticamente (ver [Sin GPU NVIDIA](#sin-gpu-nvidia)) |
 
 Para comprobar que ffmpeg está instalado y que tiene NVENC disponible:
 
@@ -39,7 +39,7 @@ ffmpeg -hide_banner -encoders | grep nvenc         (Linux / macOS)
 
 1. Abrir `worlds/cam360.wbt` en Webots.
 2. Ejecutar la simulación (▶). La consola muestra
-   `[cam360] 8192x4096 @ 15.62 fps -> ...`.
+   `[cam360] 8192x4096 @ 15.62 fps, hevc_nvenc -> ...`.
 3. Reiniciar la simulación (Reset) o cerrar Webots para terminar la grabación.
 
 El video queda en `controllers/cam360/CAM360_8192x4096.mp4`.
@@ -132,7 +132,7 @@ Resoluciones habituales:
 | Constante | Valor por defecto | Descripción |
 |---|---|---|
 | `VIDEO_FPS` | `15.0` | fps deseados; se redondea al múltiplo de `basicTimeStep` más cercano |
-| `ENCODER` | `"hevc_nvenc"` | `hevc_nvenc` o `av1_nvenc` (GPU NVIDIA); `libx265` o `libx264` (CPU) |
+| `ENCODER` | `"auto"` | `auto` usa `hevc_nvenc` si funciona y si no `libx265`; también se puede fijar `hevc_nvenc` o `av1_nvenc` (GPU NVIDIA), `libx265` o `libx264` (CPU) |
 | `QUALITY_CQ` | `23` | calidad: menor = mejor calidad y archivo más grande (18–28 es un rango razonable) |
 
 Variable de entorno opcional: `PANO_MAX_FRAMES=N` detiene la grabación después
@@ -155,11 +155,18 @@ Para obtener un fps exacto, elegir un `basicTimeStep` que divida a `1000 / fps`
 
 ### Sin GPU NVIDIA
 
-Cambiar en el controlador:
+No hay que cambiar nada. Con `ENCODER = "auto"` (el valor por defecto), al
+iniciar el controlador se codifica un cuadro de prueba con `hevc_nvenc` a la
+resolución de la cámara. Si falla (no hay GPU NVIDIA, el driver no está
+disponible o la resolución supera el límite), se usa `libx265` por CPU y la
+consola muestra:
 
-```python
-ENCODER = "libx265"   # o "libx264" si el video no supera 4096 px de ancho
 ```
+[cam360] NVENC not available, using libx265 (CPU, slower)
+```
+
+Para forzar un codificador, asignarlo directamente, por ejemplo
+`ENCODER = "libx264"` (solo si el video no supera 4096 px de ancho).
 
 La codificación por CPU funciona con cualquier equipo, pero es bastante más
 lenta y reduce la velocidad de la simulación, sobre todo en 8K.
@@ -210,7 +217,7 @@ video esférico:
 | Síntoma | Causa probable / solución |
 |---|---|
 | `FileNotFoundError` al iniciar el controlador | ffmpeg no está en el `PATH`. Instalarlo y reiniciar Webots. |
-| `No capable devices found` / `Cannot load nvcuda.dll` | No hay GPU NVIDIA o el driver está desactualizado. Actualizar el driver o usar `libx265`. |
+| `NVENC not available, using libx265` | No hay GPU NVIDIA o el driver está desactualizado. Se graba igual, pero por CPU. Para usar la GPU, actualizar el driver. |
 | ffmpeg falla con resoluciones altas | NVENC admite hasta 8192 px de ancho (`height` ≤ 4096); `h264_nvenc` y `libx264` solo hasta 4096 px. |
 | El video está vacío o corrupto | La grabación se cierra al detener o reiniciar la simulación. Si Webots se cierra a la fuerza, el MP4 queda incompleto. |
 | La imagen se ve negra | Revisar que el mundo tenga luz (`TexturedBackgroundLight` o `DirectionalLight`). |
