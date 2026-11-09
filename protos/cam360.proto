@@ -1,0 +1,38 @@
+#VRML_SIM R2025a utf8
+# 360 Camera (single camera, native equirectangular output).
+# Webots' "cylindrical" projection with fieldOfView = 2*pi and width = 2*height
+# renders the equirectangular panorama directly on the GPU (cubemap + merge shader),
+# so the controller does not need to stitch anything.
+# template language: javascript
+
+
+PROTO cam360 [
+  field SFVec3f    translation 0 0 0
+  field SFRotation rotation    0 0 1 0
+  field SFInt32    height      2048          # output = (2*height) x height
+  field SFString   name        "CAM360"
+  field SFString   controller  "<generic>"
+  field MFString   controllerArgs []
+]
+{
+  %<
+  let name = fields.name.value;
+  let h = fields.height.value;
+  >%
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    controllerArgs IS controllerArgs
+    children [
+      Camera {
+        name "%<=name>%_equirect"
+        fieldOfView 6.2832
+        width %<= 2 * h >%
+        height %<= h >%
+        projection "cylindrical"
+      }
+    ]
+  }
+}

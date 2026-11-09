@@ -1,0 +1,13 @@
+# Videos grabados por el controlador
+*.mp4
+
+# Python
+__pycache__/
+*.pyc
+
+# Archivos locales de Webots
+.*.wbproj
+.*.jpg
+
+# Spatial Media Metadata Injector.exe
+*.exe

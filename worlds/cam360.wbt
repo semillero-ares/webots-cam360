@@ -1,0 +1,46 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/cam360.proto"
+
+WorldInfo {
+  basicTimeStep 32
+}
+Viewpoint {
+  orientation -0.5773502691896257 0.5773502691896257 0.5773502691896257 2.0944
+  position 0 0 10
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 6 6
+}
+Solid {
+  translation 2 0 0.25
+  children [ Shape { appearance PBRAppearance { baseColor 1 0 0 roughness 1 metalness 0 } geometry Box { size 0.5 0.5 0.5 } } ]
+  name "front_red"
+}
+Solid {
+  translation 0 2 0.25
+  children [ Shape { appearance PBRAppearance { baseColor 0 1 0 roughness 1 metalness 0 } geometry Box { size 0.5 0.5 0.5 } } ]
+  name "left_green"
+}
+Solid {
+  translation -2 0 0.25
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 1 roughness 1 metalness 0 } geometry Box { size 0.5 0.5 0.5 } } ]
+  name "back_blue"
+}
+Solid {
+  translation 0 -2 0.25
+  children [ Shape { appearance PBRAppearance { baseColor 1 1 0 roughness 1 metalness 0 } geometry Box { size 0.5 0.5 0.5 } } ]
+  name "right_yellow"
+}
+cam360 {
+  translation 0 0 0.3
+  height 4096
+  controller "cam360"
+}
